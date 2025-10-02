@@ -1,26 +1,32 @@
-import os
 from azure.ai.inference import ChatCompletionsClient
 from azure.core.credentials import AzureKeyCredential
-from azure.ai.inference.models import SystemMessage, UserMessage
+from azure.ai.inference.models import UserMessage
 
-endpoint = ""
-key = ""
+# Azure configuration
+endpoint = "your_endpoint"
+key = "your_api_key"
 deployment_name = "DeepSeek-R1"
-command="How many languages are in the world?"
 
-def call_ai(command):
-    client = ChatCompletionsClient(
-        endpoint=endpoint,
-        credential=AzureKeyCredential(key),
-        api_version="2024-05-01-preview"  # add version of API
-    )
+# Create client
+client = ChatCompletionsClient(
+    endpoint=endpoint,
+    credential=AzureKeyCredential(key),
+    api_version="2024-05-01-preview"
+)
+
+print("=== AI Chat (type 'exit' to quit) ===")
+
+# Loop for chat
+while True:
+    command = input("You: ")
+    if command.lower() in ["exit", "quit"]:
+        print("Chat ended. Goodbye!")
+        break
 
     response = client.complete(
-        messages=[
-            UserMessage(content=command),
-        ],
-        model="DeepSeek-R1"
+        messages=[UserMessage(content=command)],
+        model=deployment_name
     )
 
-    print(response.choices[0].message.content)
-    return response.choices[0].message.content
+    reply = response.choices[0].message.content
+    print("AI:", reply)
