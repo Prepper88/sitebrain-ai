@@ -39,6 +39,7 @@ class CloudLLM(LLMInterface):
         self.pipe = pipeline("text-generation", model=self.model_name, device=self.device)
 
     def generate(self, prompt: str) -> str:
+        return 'hahah'
         """
         Generate text using the cloud Hugging Face model.
         Uses model's default generation parameters.
