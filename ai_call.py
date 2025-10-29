@@ -1,43 +1,28 @@
+import os
 from azure.ai.inference import ChatCompletionsClient
 from azure.core.credentials import AzureKeyCredential
-from azure.ai.inference.models import UserMessage, SystemMessage, AssistantMessage
+from azure.ai.inference.models import SystemMessage, UserMessage
 
-# Azure configuration
-endpoint = "your_endpoint"
-key = "your_api_key"
+endpoint = "https://chen9m1-deepseek-r1.services.ai.azure.com/models"
+key = "8Z7g2A07b2ItypQ2JOhMTwzQiKCcC4t657j3mWeqhMUtL4ZLYgcWJQQJ99BIACHYHv6XJ3w3AAAAACOGtDyz"
 deployment_name = "DeepSeek-R1"
+command="How many languages are in the world?"
 
-# Create client
-client = ChatCompletionsClient(
-    endpoint=endpoint,
-    credential=AzureKeyCredential(key),
-    api_version="2024-05-01-preview"
-)
-
-print("=== AI Chat with Memory (type 'exit' to quit) ===")
-
-# Initialize conversation memory
-messages = [
-    SystemMessage(content="You are a helpful AI assistant.")
-]
-
-while True:
-    user_input = input("You: ")
-    if user_input.lower() in ["exit", "quit"]:
-        print("Chat ended. Goodbye!")
-        break
-
-    # Add user message to memory
-    messages.append(UserMessage(content=user_input))
-
-    # Call the AI model
-    response = client.complete(
-        messages=messages,
-        model=deployment_name
+def call_ai(command):
+    client = ChatCompletionsClient(
+        endpoint=endpoint,
+        credential=AzureKeyCredential(key),
+        api_version="2024-05-01-preview"  # add version of API
     )
 
-    reply = response.choices[0].message.content
-    print("AI:", reply)
+    response = client.complete(
+        messages=[
+            UserMessage(content=command),
+        ],
+        model="DeepSeek-R1"
+    )
 
-    # Add AI response to memory
-    messages.append(AssistantMessage(content=reply))
+    print(response.choices[0].message.content)
+    return response.choices[0].message.content
+if __name__ == '__main__':
+    call_ai(command)
