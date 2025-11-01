@@ -1,8 +1,10 @@
+import json
 from typing import List
 from pdf_parser_mistral import PDFParser, PDFParagraph
 from vector_store import VectorStore
 from cloud_llm import CloudLLM
 from prompts import RAG_QA_PROMPT
+import pandas as pd
 
 class SiteBot:
     """
@@ -41,29 +43,43 @@ class SiteBot:
         2. Assemble prompt
         3. Call LLM
         """
-        results: List[PDFParagraph] = self.vector_store.search(question, k=top_k)
+        related_chunks: List[PDFParagraph] = self.vector_store.search(question, k=top_k)
         
-        if not results:
+        if not related_chunks:
             return "No relevant information found."
 
         # Assemble prompt
         context_texts = []
         # append index before content
-        for p in results:
-            if p.type == "text":
-                context_texts.append(f"{len(context_texts) + 1}. {p.content}")
-            elif p.type == "table":
+        for p in related_chunks:
+            chunk  = p["chunk"]
+            if chunk.type == "text":
+                context_texts.append(f"{len(context_texts) + 1}. {chunk.content}")
+            elif chunk.type == "table":
                 # Convert table DataFrame to CSV-style string
-                context_texts.append(f"{len(context_texts) + 1}. {p.content.to_csv(index=False)}")
+                context_texts.append(f"{len(context_texts) + 1}. {chunk.content.to_csv(index=False)}")
             else:
-                context_texts.append(f"{len(context_texts) + 1}. {str(p.content)}")
+                context_texts.append(f"{len(context_texts) + 1}. {str(chunk.content)}")
 
         context = "\n\n".join(context_texts)
         prompt = RAG_QA_PROMPT(question, context)
         # Call CloudLLM
         answer = self.cloud_llm.generate(prompt)
         #print(prompt)
-        return answer 
+        response = {
+            "question": question,
+            "answer": answer,
+            "related_chunks": related_chunks
+        }
+        return response 
+
+def default_serializer(obj):
+    if isinstance(obj, PDFParagraph):
+        return obj.to_dict()
+    if isinstance(obj, pd.DataFrame):
+        return obj.values.tolist()
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
 
 if __name__ == "__main__":
     bot = SiteBot()
@@ -79,6 +95,6 @@ if __name__ == "__main__":
             print("Exiting SiteBot. Goodbye!")
             break
 
-        answer = bot.ask_question(question)
-        print("Answer:", answer)
+        response = bot.ask_question(question)
+        print("response:\n", json.dumps(response, default=default_serializer, indent=2))
         print("-" * 50)  

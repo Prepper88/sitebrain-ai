@@ -19,6 +19,13 @@ Each paragraph should represent a coherent, self-contained unit of meaning that 
    - `type`: one of ["title", "section", "text", "table", "mixed"]
    - `content`: the Markdown text of that paragraph (preserve Markdown formatting)
    - `summary`: (optional, 1–2 sentences) a concise English summary of what the paragraph is about
+   Additional requirements for JSON validity:
+   - All backslashes (\) in the content must be properly escaped as \\.
+   - Any double quotes (") inside string values must be escaped as \\".
+   - No unescaped line breaks are allowed inside JSON strings; line breaks should be represented as \\n.
+   - The JSON must remain fully parseable, with all objects and arrays properly closed.
+
+The content may include complex text such as tables, formulas, or special symbols (e.g., LaTeX, Markdown), but it must not break JSON syntax.
 
 3. **Formatting rules**:
    - Keep Markdown headings (`#`, `##`, `###`, etc.), lists, tables, and bold/italic styles intact.

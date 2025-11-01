@@ -51,12 +51,10 @@ class VectorStore:
         results = []
         for idx in I[0]:
             if idx < len(self.paragraphs):
-                results.append(self.paragraphs[idx])
-        
-
-        for i, p in enumerate(results, 1):
-            print("================================")
-            print(f"Rank {i}: score={D[0][i-1]}, content preview={str(p.content)[:1000]}")
+                results.append({
+                    "chunk": self.paragraphs[idx],
+                    "score": float(D[0][len(results)])
+                })
         return results
 
 # -----------------------------

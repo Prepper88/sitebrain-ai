@@ -41,20 +41,30 @@ class CloudLLM(LLMInterface):
         client = ChatCompletionsClient(
             endpoint=endpoint,
             credential=AzureKeyCredential(key),
-            api_version="2024-05-01-preview"  # add version of API
+            api_version="2024-05-01-preview",  # add version of API,
         )
 
         response = client.complete(
             messages=[
                 UserMessage(content=prompt),
             ],
-            model="DeepSeek-R1"
+            model="DeepSeek-R1",
+            stream=True,
+            max_tokens=8192,
         )
+        full_response = ""
+        for chunk in response:
+            if not chunk.choices or not chunk.choices[0].delta:
+                continue
+            
+            delta = chunk.choices[0].delta.content
+            if delta:
+                full_response += delta
+                print(delta, end="", flush=True)
 
-        print(response.choices[0].message.content)
         if remove_think_tags:
-            return remove_think_tags(response.choices[0].message.content)
-        return response.choices[0].message.content
+            return remove_think_tags(full_response)
+        return full_response
 
 def remove_think_tags(text: str) -> str:
     """Remove <think>...</think> blocks from model output."""
