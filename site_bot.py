@@ -36,7 +36,7 @@ class SiteBot:
                 full_path = os.path.join(pdf_path, filename)
                 self.load_document(full_path)
 
-    def ask_question(self, question: str, top_k: int = 5) -> str:
+    async def ask_question(self, question: str, top_k: int = 5) -> str:
         """
         Ask a question:
         1. Search top-k relevant paragraphs
@@ -46,7 +46,8 @@ class SiteBot:
         related_chunks: List[PDFParagraph] = self.vector_store.search(question, k=top_k)
         
         if not related_chunks:
-            return "No relevant information found."
+            yield "No relevant information found."
+            return
 
         # Assemble prompt
         context_texts = []
@@ -64,14 +65,21 @@ class SiteBot:
         context = "\n\n".join(context_texts)
         prompt = RAG_QA_PROMPT(question, context)
         # Call CloudLLM
-        answer = self.cloud_llm.generate(prompt)
+        async for delta in self.cloud_llm.stream_generate(prompt):
+            yield delta
         #print(prompt)
-        response = {
-            "question": question,
-            "answer": answer,
-            "related_chunks": related_chunks
+        meta = {
+            "related_chunks": [
+                {
+                    "chunk": p["chunk"].to_dict(),
+                    "score": p["score"],
+                }
+                for p in related_chunks
+            ]
         }
-        return response 
+        end_marker = f"\n__END__{json.dumps(meta)}"
+        yield end_marker
+
 
 def default_serializer(obj):
     if isinstance(obj, PDFParagraph):

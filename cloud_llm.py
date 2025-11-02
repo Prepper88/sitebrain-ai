@@ -66,6 +66,37 @@ class CloudLLM(LLMInterface):
             return remove_think_tags(full_response)
         return full_response
 
+    async def stream_generate(self, prompt: str):
+        """
+        Stream generate text using the cloud Azure OpenAI model.
+        Uses model's default generation parameters.
+
+        :param prompt: Input prompt
+        :return: Generator yielding generated text chunks
+        """
+        client = ChatCompletionsClient(
+            endpoint=endpoint,
+            credential=AzureKeyCredential(key),
+            api_version="2024-05-01-preview",  # add version of API,
+        )
+
+        response = client.complete(
+            messages=[
+                UserMessage(content=prompt),
+            ],
+            model="DeepSeek-R1",
+            stream=True,
+            max_tokens=8192,
+        )
+
+        for chunk in response:
+            if not chunk.choices or not chunk.choices[0].delta:
+                continue
+            
+            delta = chunk.choices[0].delta.content
+            if delta:
+                yield delta
+
 def remove_think_tags(text: str) -> str:
     """Remove <think>...</think> blocks from model output."""
     return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
