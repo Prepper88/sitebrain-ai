@@ -1,0 +1,24 @@
+services:
+  sitebrain-ai:
+    image: tfzhu/sitebrain-ai:latest
+    container_name: sitebrain-ai
+    env_file:
+      - .env    
+    networks:
+      - sitebrain-net
+    ports:
+      - "8000:8000"
+
+  sitebrain-ui:
+    image: tfzhu/sitebrain-ui:latest
+    container_name: sitebrain-ui
+    networks:
+      - sitebrain-net
+    ports:
+      - "5173:5173"
+    environment:
+      - AI_API_URL=http://sitebrain-ai:8000
+
+networks:
+  sitebrain-net:
+    driver: bridge

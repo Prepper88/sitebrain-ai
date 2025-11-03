@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.git/
+.env
+.idea/
+.vscode/
+*.log
+.cache/
+data/
+models/
+debug_mistral/

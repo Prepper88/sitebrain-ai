@@ -1,0 +1,16 @@
+.venv
+debug_mistral
+.vscode
+__pycache__/
+docs/
+.DS_Store
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.log
+*.env
+debug_mistral/
+parsed_paragraphs.json
+chunks/

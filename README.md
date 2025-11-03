@@ -17,3 +17,6 @@ ollama run llama2
 https://huggingface.co/settings/tokens 
 * apply model
 https://huggingface.co/meta-llama/Llama-2-7b-chat-hf
+
+## Sample Questions
+* What’s the maximum hot-water temperature allowed by code?
