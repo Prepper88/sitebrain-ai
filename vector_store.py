@@ -14,7 +14,7 @@ class VectorStore:
         self.dim = self.model.get_sentence_embedding_dimension()
         self.index = faiss.IndexFlatIP(self.dim)  # inner product for cosine similarity
         self.paragraphs: List[PDFParagraph] = []  # store PDFParagraph objects
-        print(f"✅ Loaded model: {model_name} (dimension={self.dim})")
+        print(f"Loaded model: {model_name} (dimension={self.dim})")
 
     def add_paragraphs(self, paragraphs: List[PDFParagraph]):
         """
