@@ -212,7 +212,7 @@ def extract_json(text: str):
     :param text: Raw string containing JSON (possibly wrapped in ```json)
     :return: Parsed Python object (list or dict)
     """
-    # 1. Try to find JSON inside ```json ... ```
+    # Try to find JSON inside ```json ... ```
     match = re.search(r"```json\s*(.*?)\s*```", text, flags=re.DOTALL)
     if match:
         json_str = match.group(1)
@@ -221,16 +221,16 @@ def extract_json(text: str):
         match = re.search(r"(\{.*\}|\[.*\])", text, flags=re.DOTALL)
         if not match:
             # print warning and return empty
-            print("⚠️ No JSON content found in the text.")
+            print("No JSON content found in the text.")
             return None
         json_str = match.group(1)
 
-    # 2. Attempt to parse the JSON string
+    # Attempt to parse the JSON string
     try:
         data = json.loads(json_str)
         return data
     except json.JSONDecodeError as e:
-        print("⚠️ JSON parsing failed:", e)
+        print("JSON parsing failed:", e)
         print("Snippet of extracted text:\n", json_str[:500])
         raise
 
@@ -244,6 +244,5 @@ if __name__ == "__main__":
     # Output results to JSON file
     with open("parsed_paragraphs.json", "w", encoding="utf-8") as f:
         json.dump([p.to_dict() for p in paragraphs], f, ensure_ascii=False, indent=4)
-
 
     print("Parsing complete, results saved to parsed_paragraphs.json")
