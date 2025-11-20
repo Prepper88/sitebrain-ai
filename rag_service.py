@@ -5,6 +5,8 @@ import uvicorn
 from site_bot import SiteBot 
 from contextlib import asynccontextmanager
 from fastapi.responses import StreamingResponse
+from file_management import router as file_router
+
 
 
 @asynccontextmanager
@@ -23,6 +25,8 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app with the lifespan handler
 app = FastAPI(lifespan=lifespan)
+
+app.include_router(file_router, prefix="/files", tags=["File Service"])
 
 class Query(BaseModel):
     question: str
